@@ -114,8 +114,7 @@ class MessageCreateParamsBase(TypedDict, total=False):
 
     Note that if you want to include a
     [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-    you can use the top-level `system` parameter — there is no `"system"` role for
-    input messages in the Messages API.
+    you can use the top-level `system` parameter.
 
     There is a limit of 100,000 messages in a single request.
     """
@@ -164,6 +163,17 @@ class MessageCreateParamsBase(TypedDict, total=False):
     Anthropic offers different levels of service for your API requests. See
     [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
     details.
+    """
+
+    speed: Optional[Literal["standard", "fast"]]
+    """The inference speed mode for this request.
+
+    `"fast"` enables high output-tokens-per-second inference.
+
+    Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+    value. See
+    [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+    which models.
     """
 
     stop_sequences: SequenceNotStr[str]
@@ -289,8 +299,7 @@ class MessageCreateParamsBase(TypedDict, total=False):
     user_profile_id: str
     """The user profile ID to attribute this request to.
 
-    Use when acting on behalf of a party other than your organization. Requires the
-    `user-profiles` beta header.
+    Use when acting on behalf of a party other than your organization.
     """
 
     workspace_id: str

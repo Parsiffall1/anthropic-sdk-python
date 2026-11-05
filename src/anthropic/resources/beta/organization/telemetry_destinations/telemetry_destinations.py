@@ -54,7 +54,7 @@ class TelemetryDestinations(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return TelemetryDestinationsWithRawResponse(self)
 
@@ -63,7 +63,7 @@ class TelemetryDestinations(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return TelemetryDestinationsWithStreamingResponse(self)
 
@@ -112,8 +112,7 @@ class TelemetryDestinations(SyncAPIResource):
           headers: Request headers that the API sends with every delivery, typically your
               collector's authentication header (for example `authorization`).
 
-              The API stores the values encrypted and never returns them. Reads show only
-              `header_names`.
+              The API never returns the values. Reads show only `header_names`.
 
               At most 20 headers. Names are at most 128 characters. Two names can't differ
               only in case. Values are printable ASCII, at most 4,096 characters, and can't
@@ -126,7 +125,8 @@ class TelemetryDestinations(SyncAPIResource):
           traces: The settings for the traces that the destination receives. If you leave it out,
               every setting takes its default.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -148,7 +148,7 @@ class TelemetryDestinations(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._post(
-            "/v1/organizations/telemetry_destinations?beta=true",
+            "/v1/organizations/telemetry_destinations",
             body={
                 "endpoint_url": endpoint_url,
                 "workspaces": workspaces,
@@ -161,6 +161,7 @@ class TelemetryDestinations(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.create",
                 span_route="/v1/organizations/telemetry_destinations",
                 span_created_id="anthropic.organization.telemetry_destination.id",
@@ -190,7 +191,8 @@ class TelemetryDestinations(SyncAPIResource):
         Args:
           destination_id: ID of the destination (`tdst_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -214,14 +216,13 @@ class TelemetryDestinations(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._get(
-            path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}?beta=true", destination_id=destination_id
-            ),
+            path_template("/v1/organizations/telemetry_destinations/{destination_id}", destination_id=destination_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.retrieve",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -308,7 +309,8 @@ class TelemetryDestinations(SyncAPIResource):
               the destination's list has more than 750 workspaces. Remove workspaces one at a
               time until 750 or fewer remain, then send the update again.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -332,9 +334,7 @@ class TelemetryDestinations(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._post(
-            path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}?beta=true", destination_id=destination_id
-            ),
+            path_template("/v1/organizations/telemetry_destinations/{destination_id}", destination_id=destination_id),
             body={
                 "display_name": display_name,
                 "endpoint_url": endpoint_url,
@@ -348,6 +348,7 @@ class TelemetryDestinations(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.update",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -392,7 +393,8 @@ class TelemetryDestinations(SyncAPIResource):
               match. An ID that isn't the ID of one of the organization's workspaces doesn't
               match any destination, not even one whose type is `all`.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -414,7 +416,7 @@ class TelemetryDestinations(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._get_api_list(
-            "/v1/organizations/telemetry_destinations?beta=true",
+            "/v1/organizations/telemetry_destinations",
             page=SyncPageCursor[BetaTelemetryDestination],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -426,6 +428,7 @@ class TelemetryDestinations(SyncAPIResource):
                     "page": page,
                     "workspace_ids": workspace_ids,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.list",
                 span_route="/v1/organizations/telemetry_destinations",
             ),
@@ -458,7 +461,8 @@ class TelemetryDestinations(SyncAPIResource):
         Args:
           destination_id: ID of the destination (`tdst_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -482,14 +486,13 @@ class TelemetryDestinations(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._delete(
-            path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}?beta=true", destination_id=destination_id
-            ),
+            path_template("/v1/organizations/telemetry_destinations/{destination_id}", destination_id=destination_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.delete",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -522,7 +525,8 @@ class TelemetryDestinations(SyncAPIResource):
         Args:
           destination_id: ID of the destination to test (starts with `tdst_`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -547,14 +551,14 @@ class TelemetryDestinations(SyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._post(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/test?beta=true",
-                destination_id=destination_id,
+                "/v1/organizations/telemetry_destinations/{destination_id}/test", destination_id=destination_id
             ),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.test",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/test",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -574,7 +578,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncTelemetryDestinationsWithRawResponse(self)
 
@@ -583,7 +587,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncTelemetryDestinationsWithStreamingResponse(self)
 
@@ -632,8 +636,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
           headers: Request headers that the API sends with every delivery, typically your
               collector's authentication header (for example `authorization`).
 
-              The API stores the values encrypted and never returns them. Reads show only
-              `header_names`.
+              The API never returns the values. Reads show only `header_names`.
 
               At most 20 headers. Names are at most 128 characters. Two names can't differ
               only in case. Values are printable ASCII, at most 4,096 characters, and can't
@@ -646,7 +649,8 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
           traces: The settings for the traces that the destination receives. If you leave it out,
               every setting takes its default.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -668,7 +672,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._post(
-            "/v1/organizations/telemetry_destinations?beta=true",
+            "/v1/organizations/telemetry_destinations",
             body={
                 "endpoint_url": endpoint_url,
                 "workspaces": workspaces,
@@ -681,6 +685,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.create",
                 span_route="/v1/organizations/telemetry_destinations",
                 span_created_id="anthropic.organization.telemetry_destination.id",
@@ -710,7 +715,8 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         Args:
           destination_id: ID of the destination (`tdst_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -734,14 +740,13 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._get(
-            path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}?beta=true", destination_id=destination_id
-            ),
+            path_template("/v1/organizations/telemetry_destinations/{destination_id}", destination_id=destination_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.retrieve",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -828,7 +833,8 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
               the destination's list has more than 750 workspaces. Remove workspaces one at a
               time until 750 or fewer remain, then send the update again.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -852,9 +858,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._post(
-            path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}?beta=true", destination_id=destination_id
-            ),
+            path_template("/v1/organizations/telemetry_destinations/{destination_id}", destination_id=destination_id),
             body={
                 "display_name": display_name,
                 "endpoint_url": endpoint_url,
@@ -868,6 +872,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.update",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -912,7 +917,8 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
               match. An ID that isn't the ID of one of the organization's workspaces doesn't
               match any destination, not even one whose type is `all`.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -934,7 +940,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._get_api_list(
-            "/v1/organizations/telemetry_destinations?beta=true",
+            "/v1/organizations/telemetry_destinations",
             page=AsyncPageCursor[BetaTelemetryDestination],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -946,6 +952,7 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
                     "page": page,
                     "workspace_ids": workspace_ids,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.list",
                 span_route="/v1/organizations/telemetry_destinations",
             ),
@@ -978,7 +985,8 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         Args:
           destination_id: ID of the destination (`tdst_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -1002,14 +1010,13 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._delete(
-            path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}?beta=true", destination_id=destination_id
-            ),
+            path_template("/v1/organizations/telemetry_destinations/{destination_id}", destination_id=destination_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.delete",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -1042,7 +1049,8 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         Args:
           destination_id: ID of the destination to test (starts with `tdst_`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -1067,14 +1075,14 @@ class AsyncTelemetryDestinations(AsyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._post(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/test?beta=true",
-                destination_id=destination_id,
+                "/v1/organizations/telemetry_destinations/{destination_id}/test", destination_id=destination_id
             ),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.test",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/test",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},

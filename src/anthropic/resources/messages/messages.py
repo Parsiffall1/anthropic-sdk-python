@@ -105,7 +105,7 @@ class Messages(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return MessagesWithRawResponse(self)
 
@@ -114,7 +114,7 @@ class Messages(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return MessagesWithStreamingResponse(self)
 
@@ -132,6 +132,7 @@ class Messages(SyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         stream: Literal[False] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
@@ -237,8 +238,7 @@ class Messages(SyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -269,6 +269,14 @@ class Messages(SyncAPIResource):
               Anthropic offers different levels of service for your API requests. See
               [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
               details.
+
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           stop_sequences: Custom text sequences that will cause the model to stop generating.
 
@@ -388,7 +396,7 @@ class Messages(SyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -404,6 +412,91 @@ class Messages(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          ClaudeCodeVersionTooOldError: The request comes from a Claude Code version older than the minimum that the
+              requested model or the organization requires. Update Claude Code, then retry.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionIncompleteTurnError: The compaction request ends on an `assistant` turn that is not finished.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionTooManyToolReferencesError: The conversation references more distinct tools than a `compaction` block can
+              record.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ThreadAlreadyContinuedError: The response that `previous_message_id` names has already been continued, and
+              each response can be continued only once. Continue from the Thread's most recent
+              response `id`.
+
+          ThreadContinueInFlightError: Another request is still continuing from the same `previous_message_id`. Wait
+              for it to complete and continue from its response `id`, or replay the full
+              conversation with `thread: {"type": "create"}`.
+
+          ThreadFingerprintMismatchError: A field that must stay the same across a Thread's turns differs from the value
+              stored with the Thread; the message names each such field. Send the stored
+              values, or replay the full conversation with `thread: {"type": "create"}` to
+              change them.
+
+          ThreadUnsupportedRequestError: The request combines `thread` with a request field or an organization setting
+              that Threads do not support; `unsupported`, when present, names it. Send the
+              full conversation without `thread`, or change that field.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          ThreadNotFoundError: No usable Thread state was found for `previous_message_id`. Replay the full
+              conversation with `thread: {"type": "create"}` to start a new Thread.
+
+          SkillReadBlockedUndecryptableError: A custom skill the request names is stored under an encryption key state the
+              workspace cannot currently decrypt.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CMEKKeyUnreachableError: The workspace's customer-managed encryption key could not be reached. Retry the
+              request; if this continues, check that the key is available in your key
+              management service, or contact Anthropic support.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         ...
 
@@ -422,6 +515,7 @@ class Messages(SyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -526,8 +620,7 @@ class Messages(SyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -567,6 +660,14 @@ class Messages(SyncAPIResource):
               Anthropic offers different levels of service for your API requests. See
               [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
               details.
+
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           stop_sequences: Custom text sequences that will cause the model to stop generating.
 
@@ -677,7 +778,7 @@ class Messages(SyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -693,6 +794,91 @@ class Messages(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          ClaudeCodeVersionTooOldError: The request comes from a Claude Code version older than the minimum that the
+              requested model or the organization requires. Update Claude Code, then retry.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionIncompleteTurnError: The compaction request ends on an `assistant` turn that is not finished.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionTooManyToolReferencesError: The conversation references more distinct tools than a `compaction` block can
+              record.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ThreadAlreadyContinuedError: The response that `previous_message_id` names has already been continued, and
+              each response can be continued only once. Continue from the Thread's most recent
+              response `id`.
+
+          ThreadContinueInFlightError: Another request is still continuing from the same `previous_message_id`. Wait
+              for it to complete and continue from its response `id`, or replay the full
+              conversation with `thread: {"type": "create"}`.
+
+          ThreadFingerprintMismatchError: A field that must stay the same across a Thread's turns differs from the value
+              stored with the Thread; the message names each such field. Send the stored
+              values, or replay the full conversation with `thread: {"type": "create"}` to
+              change them.
+
+          ThreadUnsupportedRequestError: The request combines `thread` with a request field or an organization setting
+              that Threads do not support; `unsupported`, when present, names it. Send the
+              full conversation without `thread`, or change that field.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          ThreadNotFoundError: No usable Thread state was found for `previous_message_id`. Replay the full
+              conversation with `thread: {"type": "create"}` to start a new Thread.
+
+          SkillReadBlockedUndecryptableError: A custom skill the request names is stored under an encryption key state the
+              workspace cannot currently decrypt.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CMEKKeyUnreachableError: The workspace's customer-managed encryption key could not be reached. Retry the
+              request; if this continues, check that the key is available in your key
+              management service, or contact Anthropic support.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         ...
 
@@ -711,6 +897,7 @@ class Messages(SyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -815,8 +1002,7 @@ class Messages(SyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -856,6 +1042,14 @@ class Messages(SyncAPIResource):
               Anthropic offers different levels of service for your API requests. See
               [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
               details.
+
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           stop_sequences: Custom text sequences that will cause the model to stop generating.
 
@@ -966,7 +1160,7 @@ class Messages(SyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -982,6 +1176,91 @@ class Messages(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          ClaudeCodeVersionTooOldError: The request comes from a Claude Code version older than the minimum that the
+              requested model or the organization requires. Update Claude Code, then retry.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionIncompleteTurnError: The compaction request ends on an `assistant` turn that is not finished.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionTooManyToolReferencesError: The conversation references more distinct tools than a `compaction` block can
+              record.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ThreadAlreadyContinuedError: The response that `previous_message_id` names has already been continued, and
+              each response can be continued only once. Continue from the Thread's most recent
+              response `id`.
+
+          ThreadContinueInFlightError: Another request is still continuing from the same `previous_message_id`. Wait
+              for it to complete and continue from its response `id`, or replay the full
+              conversation with `thread: {"type": "create"}`.
+
+          ThreadFingerprintMismatchError: A field that must stay the same across a Thread's turns differs from the value
+              stored with the Thread; the message names each such field. Send the stored
+              values, or replay the full conversation with `thread: {"type": "create"}` to
+              change them.
+
+          ThreadUnsupportedRequestError: The request combines `thread` with a request field or an organization setting
+              that Threads do not support; `unsupported`, when present, names it. Send the
+              full conversation without `thread`, or change that field.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          ThreadNotFoundError: No usable Thread state was found for `previous_message_id`. Replay the full
+              conversation with `thread: {"type": "create"}` to start a new Thread.
+
+          SkillReadBlockedUndecryptableError: A custom skill the request names is stored under an encryption key state the
+              workspace cannot currently decrypt.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CMEKKeyUnreachableError: The workspace's customer-managed encryption key could not be reached. Retry the
+              request; if this continues, check that the key is available in your key
+              management service, or contact Anthropic support.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         ...
 
@@ -999,6 +1278,7 @@ class Messages(SyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         stream: Literal[False] | Literal[True] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
@@ -1055,6 +1335,7 @@ class Messages(SyncAPIResource):
                 "metadata": metadata,
                 "output_config": output_config,
                 "service_tier": service_tier,
+                "speed": speed,
                 "stop_sequences": stop_sequences,
                 "stream": stream,
                 "system": system,
@@ -1090,6 +1371,7 @@ class Messages(SyncAPIResource):
         output_format: Optional[type[ResponseFormatT]] | Omit = omit,
         container: Optional[MessageCreateParamsContainerParam] | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -1175,6 +1457,7 @@ class Messages(SyncAPIResource):
                 "output_config": merged_output_config,
                 "container": container,
                 "service_tier": service_tier,
+                "speed": speed,
                 "stop_sequences": stop_sequences,
                 "system": system,
                 "tools": tools,
@@ -1211,6 +1494,7 @@ class Messages(SyncAPIResource):
         output_config: OutputConfigParam | Omit = omit,
         output_format: Optional[type[ResponseFormatT]] | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -1296,6 +1580,7 @@ class Messages(SyncAPIResource):
                 "metadata": metadata,
                 "output_config": merged_output_config,
                 "service_tier": service_tier,
+                "speed": speed,
                 "stop_sequences": stop_sequences,
                 "system": system,
                 "thinking": thinking,
@@ -1324,6 +1609,7 @@ class Messages(SyncAPIResource):
         cache_control: Optional[CacheControlEphemeralParam] | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         output_format: Optional[type] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
         tool_choice: ToolChoiceParam | Omit = omit,
@@ -1413,8 +1699,7 @@ class Messages(SyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -1428,6 +1713,13 @@ class Messages(SyncAPIResource):
 
           output_config: Configuration options for the model's output, such as the output format.
 
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           system: System prompt.
 
@@ -1528,7 +1820,7 @@ class Messages(SyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -1544,6 +1836,50 @@ class Messages(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         extra_headers = {
             **strip_not_given(
@@ -1593,6 +1929,7 @@ class Messages(SyncAPIResource):
                 "model": model,
                 "cache_control": cache_control,
                 "output_config": merged_output_config,
+                "speed": speed,
                 "system": system,
                 "thinking": thinking,
                 "tool_choice": tool_choice,
@@ -1622,7 +1959,7 @@ class AsyncMessages(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncMessagesWithRawResponse(self)
 
@@ -1631,7 +1968,7 @@ class AsyncMessages(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncMessagesWithStreamingResponse(self)
 
@@ -1649,6 +1986,7 @@ class AsyncMessages(AsyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         stream: Literal[False] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
@@ -1754,8 +2092,7 @@ class AsyncMessages(AsyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -1786,6 +2123,14 @@ class AsyncMessages(AsyncAPIResource):
               Anthropic offers different levels of service for your API requests. See
               [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
               details.
+
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           stop_sequences: Custom text sequences that will cause the model to stop generating.
 
@@ -1905,7 +2250,7 @@ class AsyncMessages(AsyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -1921,6 +2266,91 @@ class AsyncMessages(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          ClaudeCodeVersionTooOldError: The request comes from a Claude Code version older than the minimum that the
+              requested model or the organization requires. Update Claude Code, then retry.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionIncompleteTurnError: The compaction request ends on an `assistant` turn that is not finished.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionTooManyToolReferencesError: The conversation references more distinct tools than a `compaction` block can
+              record.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ThreadAlreadyContinuedError: The response that `previous_message_id` names has already been continued, and
+              each response can be continued only once. Continue from the Thread's most recent
+              response `id`.
+
+          ThreadContinueInFlightError: Another request is still continuing from the same `previous_message_id`. Wait
+              for it to complete and continue from its response `id`, or replay the full
+              conversation with `thread: {"type": "create"}`.
+
+          ThreadFingerprintMismatchError: A field that must stay the same across a Thread's turns differs from the value
+              stored with the Thread; the message names each such field. Send the stored
+              values, or replay the full conversation with `thread: {"type": "create"}` to
+              change them.
+
+          ThreadUnsupportedRequestError: The request combines `thread` with a request field or an organization setting
+              that Threads do not support; `unsupported`, when present, names it. Send the
+              full conversation without `thread`, or change that field.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          ThreadNotFoundError: No usable Thread state was found for `previous_message_id`. Replay the full
+              conversation with `thread: {"type": "create"}` to start a new Thread.
+
+          SkillReadBlockedUndecryptableError: A custom skill the request names is stored under an encryption key state the
+              workspace cannot currently decrypt.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CMEKKeyUnreachableError: The workspace's customer-managed encryption key could not be reached. Retry the
+              request; if this continues, check that the key is available in your key
+              management service, or contact Anthropic support.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         ...
 
@@ -1939,6 +2369,7 @@ class AsyncMessages(AsyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -2043,8 +2474,7 @@ class AsyncMessages(AsyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -2084,6 +2514,14 @@ class AsyncMessages(AsyncAPIResource):
               Anthropic offers different levels of service for your API requests. See
               [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
               details.
+
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           stop_sequences: Custom text sequences that will cause the model to stop generating.
 
@@ -2194,7 +2632,7 @@ class AsyncMessages(AsyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -2210,6 +2648,91 @@ class AsyncMessages(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          ClaudeCodeVersionTooOldError: The request comes from a Claude Code version older than the minimum that the
+              requested model or the organization requires. Update Claude Code, then retry.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionIncompleteTurnError: The compaction request ends on an `assistant` turn that is not finished.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionTooManyToolReferencesError: The conversation references more distinct tools than a `compaction` block can
+              record.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ThreadAlreadyContinuedError: The response that `previous_message_id` names has already been continued, and
+              each response can be continued only once. Continue from the Thread's most recent
+              response `id`.
+
+          ThreadContinueInFlightError: Another request is still continuing from the same `previous_message_id`. Wait
+              for it to complete and continue from its response `id`, or replay the full
+              conversation with `thread: {"type": "create"}`.
+
+          ThreadFingerprintMismatchError: A field that must stay the same across a Thread's turns differs from the value
+              stored with the Thread; the message names each such field. Send the stored
+              values, or replay the full conversation with `thread: {"type": "create"}` to
+              change them.
+
+          ThreadUnsupportedRequestError: The request combines `thread` with a request field or an organization setting
+              that Threads do not support; `unsupported`, when present, names it. Send the
+              full conversation without `thread`, or change that field.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          ThreadNotFoundError: No usable Thread state was found for `previous_message_id`. Replay the full
+              conversation with `thread: {"type": "create"}` to start a new Thread.
+
+          SkillReadBlockedUndecryptableError: A custom skill the request names is stored under an encryption key state the
+              workspace cannot currently decrypt.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CMEKKeyUnreachableError: The workspace's customer-managed encryption key could not be reached. Retry the
+              request; if this continues, check that the key is available in your key
+              management service, or contact Anthropic support.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         ...
 
@@ -2228,6 +2751,7 @@ class AsyncMessages(AsyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -2332,8 +2856,7 @@ class AsyncMessages(AsyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -2373,6 +2896,14 @@ class AsyncMessages(AsyncAPIResource):
               Anthropic offers different levels of service for your API requests. See
               [service-tiers](https://platform.claude.com/docs/en/api/service-tiers) for
               details.
+
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           stop_sequences: Custom text sequences that will cause the model to stop generating.
 
@@ -2483,7 +3014,7 @@ class AsyncMessages(AsyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -2499,6 +3030,91 @@ class AsyncMessages(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          ClaudeCodeVersionTooOldError: The request comes from a Claude Code version older than the minimum that the
+              requested model or the organization requires. Update Claude Code, then retry.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionIncompleteTurnError: The compaction request ends on an `assistant` turn that is not finished.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionTooManyToolReferencesError: The conversation references more distinct tools than a `compaction` block can
+              record.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ThreadAlreadyContinuedError: The response that `previous_message_id` names has already been continued, and
+              each response can be continued only once. Continue from the Thread's most recent
+              response `id`.
+
+          ThreadContinueInFlightError: Another request is still continuing from the same `previous_message_id`. Wait
+              for it to complete and continue from its response `id`, or replay the full
+              conversation with `thread: {"type": "create"}`.
+
+          ThreadFingerprintMismatchError: A field that must stay the same across a Thread's turns differs from the value
+              stored with the Thread; the message names each such field. Send the stored
+              values, or replay the full conversation with `thread: {"type": "create"}` to
+              change them.
+
+          ThreadUnsupportedRequestError: The request combines `thread` with a request field or an organization setting
+              that Threads do not support; `unsupported`, when present, names it. Send the
+              full conversation without `thread`, or change that field.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          ThreadNotFoundError: No usable Thread state was found for `previous_message_id`. Replay the full
+              conversation with `thread: {"type": "create"}` to start a new Thread.
+
+          SkillReadBlockedUndecryptableError: A custom skill the request names is stored under an encryption key state the
+              workspace cannot currently decrypt.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CMEKKeyUnreachableError: The workspace's customer-managed encryption key could not be reached. Retry the
+              request; if this continues, check that the key is available in your key
+              management service, or contact Anthropic support.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         ...
 
@@ -2516,6 +3132,7 @@ class AsyncMessages(AsyncAPIResource):
         metadata: MetadataParam | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         stream: Literal[False] | Literal[True] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
@@ -2572,6 +3189,7 @@ class AsyncMessages(AsyncAPIResource):
                 "metadata": metadata,
                 "output_config": output_config,
                 "service_tier": service_tier,
+                "speed": speed,
                 "stop_sequences": stop_sequences,
                 "stream": stream,
                 "system": system,
@@ -2607,6 +3225,7 @@ class AsyncMessages(AsyncAPIResource):
         output_format: Optional[type[ResponseFormatT]] | Omit = omit,
         container: Optional[MessageCreateParamsContainerParam] | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -2691,6 +3310,7 @@ class AsyncMessages(AsyncAPIResource):
                 "output_config": merged_output_config,
                 "container": container,
                 "service_tier": service_tier,
+                "speed": speed,
                 "stop_sequences": stop_sequences,
                 "system": system,
                 "tools": tools,
@@ -2727,6 +3347,7 @@ class AsyncMessages(AsyncAPIResource):
         output_config: OutputConfigParam | Omit = omit,
         output_format: Optional[type[ResponseFormatT]] | Omit = omit,
         service_tier: Literal["auto", "standard_only"] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         stop_sequences: SequenceNotStr[str] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
@@ -2812,6 +3433,7 @@ class AsyncMessages(AsyncAPIResource):
                 "metadata": metadata,
                 "output_config": merged_output_config,
                 "service_tier": service_tier,
+                "speed": speed,
                 "stop_sequences": stop_sequences,
                 "system": system,
                 "thinking": thinking,
@@ -2840,6 +3462,7 @@ class AsyncMessages(AsyncAPIResource):
         cache_control: Optional[CacheControlEphemeralParam] | Omit = omit,
         output_config: OutputConfigParam | Omit = omit,
         output_format: Optional[type] | Omit = omit,
+        speed: Optional[Literal["standard", "fast"]] | Omit = omit,
         system: Union[str, Iterable[TextBlockParam]] | Omit = omit,
         thinking: ThinkingConfigParam | Omit = omit,
         tool_choice: ToolChoiceParam | Omit = omit,
@@ -2929,8 +3552,7 @@ class AsyncMessages(AsyncAPIResource):
 
               Note that if you want to include a
               [system prompt](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#give-claude-a-role),
-              you can use the top-level `system` parameter — there is no `"system"` role for
-              input messages in the Messages API.
+              you can use the top-level `system` parameter.
 
               There is a limit of 100,000 messages in a single request.
 
@@ -2944,6 +3566,13 @@ class AsyncMessages(AsyncAPIResource):
 
           output_config: Configuration options for the model's output, such as the output format.
 
+          speed: The inference speed mode for this request. `"fast"` enables high
+              output-tokens-per-second inference.
+
+              Some models require the `fast-mode-2026-02-01` beta header for any `speed`
+              value. See
+              [fast mode](https://platform.claude.com/docs/en/build-with-claude/fast-mode) for
+              which models.
 
           system: System prompt.
 
@@ -3044,7 +3673,7 @@ class AsyncMessages(AsyncAPIResource):
               for more details.
 
           user_profile_id: The user profile ID to attribute this request to. Use when acting on behalf of a
-              party other than your organization. Requires the `user-profiles` beta header.
+              party other than your organization.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -3060,6 +3689,50 @@ class AsyncMessages(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          AvailableToolsLimitExceededError: The tools available after a message exceed a limit on their number or their
+              size.
+
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          CompactionBlockAmbiguousError: `messages` holds more than one `compaction` block with content. Send only the
+              block the conversation returned last.
+
+          CompactionBlockMisplacedError: The `compaction` block is not the first block of the conversation, or is in a
+              `system` message.
+
+          CompactionContentMismatchError: The `compaction` block's `content` differs from the text its `signature`
+              recorded.
+
+          CompactionNothingToSummarizeError: `messages` holds no `user` or `assistant` content to summarize or adopt.
+
+          CompactionSignatureInvalidError: The `compaction` block's `signature` does not verify.
+
+          CompactionToolChangesMismatchError: The `compaction` block's `tool_changes` differs from what was returned with the
+              block.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          RequestBodyEncodingInvalidError: The request body is not valid for its `Content-Encoding`.
+
+          RequestBodyEncodingUnsupportedError: The request's `Content-Encoding` is not supported.
+
+          ToolNameConflictError: A tool made available in `messages` takes a name that an available tool of
+              another kind, or of another MCP server, already holds.
+
+          ToolReferenceUnresolvedError: A tool change or MCP tool listing references a tool or MCP server that is not
+              defined at that position in the conversation.
+
+          RequestBodyTooLargeAfterDecodingError: The compressed request body exceeds the request size limit once decoded.
+
+          EnforcedSpendLimitReachedError: The organization has crossed the monthly API usage threshold of its API tier.
+
+          CompactionUnavailableError: The compaction could not be completed for a transient server reason. Retry the
+              request.
         """
         extra_headers = {
             **strip_not_given(
@@ -3109,6 +3782,7 @@ class AsyncMessages(AsyncAPIResource):
                 "model": model,
                 "cache_control": cache_control,
                 "output_config": merged_output_config,
+                "speed": speed,
                 "system": system,
                 "thinking": thinking,
                 "tool_choice": tool_choice,

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import List, Union, Optional
 from datetime import date
-from typing_extensions import Literal
 
 import httpx2
 
@@ -17,7 +16,10 @@ from ....._response import (
 )
 from .....pagination import SyncPageCursor, AsyncPageCursor
 from ....._base_client import AsyncPaginator, make_request_options
+from .....types.beta.organization import BetaAnalyticsOrder
+from .....types.beta.organization.beta_analytics_order import BetaAnalyticsOrder
 from .....types.beta.organization.beta_analytics_connector_activity import BetaAnalyticsConnectorActivity
+from .....types.beta.organization.beta_analytics_connector_group_by import BetaAnalyticsConnectorGroupBy
 
 __all__ = ["Connectors", "AsyncConnectors"]
 
@@ -29,7 +31,7 @@ class Connectors(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return ConnectorsWithRawResponse(self)
 
@@ -38,7 +40,7 @@ class Connectors(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return ConnectorsWithStreamingResponse(self)
 
@@ -48,9 +50,9 @@ class Connectors(SyncAPIResource):
         date: Union[str, date, None] | Omit = omit,
         ending_date: Union[str, date, None] | Omit = omit,
         filter: Optional[SequenceNotStr[str]] | Omit = omit,
-        group_by: Optional[List[Literal["product", "rbac_group_id", "user_id"]]] | Omit = omit,
+        group_by: Optional[List[BetaAnalyticsConnectorGroupBy]] | Omit = omit,
         limit: Optional[int] | Omit = omit,
-        order: Optional[Literal["asc", "desc"]] | Omit = omit,
+        order: Optional[BetaAnalyticsOrder] | Omit = omit,
         order_by: Optional[str] | Omit = omit,
         page: Optional[str] | Omit = omit,
         starting_date: Union[str, date, None] | Omit = omit,
@@ -98,8 +100,7 @@ class Connectors(SyncAPIResource):
               the group at any point during each covered UTC day (time-of-usage attribution);
               `user_id` takes a tagged user id (`user_...`), as emitted in responses. An
               unsupported dimension returns 400. At most 100 entries. `chat_cowork_unified` is
-              accepted as a `product` value only on deployments that offer Chat and Cowork
-              unified.
+              accepted as a `product` value only where Chat and Cowork unified is available.
 
           group_by: Dimensions to break results out by (e.g. `group_by[]=user_id`). Supported on
               this endpoint: `product`, `rbac_group_id`, `user_id`. Grouped rows carry the
@@ -143,7 +144,7 @@ class Connectors(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get_api_list(
-            "/v1/organizations/analytics/connectors?beta=true",
+            "/v1/organizations/analytics/connectors",
             page=SyncPageCursor[BetaAnalyticsConnectorActivity],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -161,6 +162,7 @@ class Connectors(SyncAPIResource):
                     "page": page,
                     "starting_date": starting_date,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.analytics.connectors.list",
                 span_route="/v1/organizations/analytics/connectors",
                 span_content_query_params=("filter",),
@@ -176,7 +178,7 @@ class AsyncConnectors(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncConnectorsWithRawResponse(self)
 
@@ -185,7 +187,7 @@ class AsyncConnectors(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncConnectorsWithStreamingResponse(self)
 
@@ -195,9 +197,9 @@ class AsyncConnectors(AsyncAPIResource):
         date: Union[str, date, None] | Omit = omit,
         ending_date: Union[str, date, None] | Omit = omit,
         filter: Optional[SequenceNotStr[str]] | Omit = omit,
-        group_by: Optional[List[Literal["product", "rbac_group_id", "user_id"]]] | Omit = omit,
+        group_by: Optional[List[BetaAnalyticsConnectorGroupBy]] | Omit = omit,
         limit: Optional[int] | Omit = omit,
-        order: Optional[Literal["asc", "desc"]] | Omit = omit,
+        order: Optional[BetaAnalyticsOrder] | Omit = omit,
         order_by: Optional[str] | Omit = omit,
         page: Optional[str] | Omit = omit,
         starting_date: Union[str, date, None] | Omit = omit,
@@ -245,8 +247,7 @@ class AsyncConnectors(AsyncAPIResource):
               the group at any point during each covered UTC day (time-of-usage attribution);
               `user_id` takes a tagged user id (`user_...`), as emitted in responses. An
               unsupported dimension returns 400. At most 100 entries. `chat_cowork_unified` is
-              accepted as a `product` value only on deployments that offer Chat and Cowork
-              unified.
+              accepted as a `product` value only where Chat and Cowork unified is available.
 
           group_by: Dimensions to break results out by (e.g. `group_by[]=user_id`). Supported on
               this endpoint: `product`, `rbac_group_id`, `user_id`. Grouped rows carry the
@@ -290,7 +291,7 @@ class AsyncConnectors(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get_api_list(
-            "/v1/organizations/analytics/connectors?beta=true",
+            "/v1/organizations/analytics/connectors",
             page=AsyncPageCursor[BetaAnalyticsConnectorActivity],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -308,6 +309,7 @@ class AsyncConnectors(AsyncAPIResource):
                     "page": page,
                     "starting_date": starting_date,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.analytics.connectors.list",
                 span_route="/v1/organizations/analytics/connectors",
                 span_content_query_params=("filter",),

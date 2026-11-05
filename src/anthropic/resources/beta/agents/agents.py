@@ -53,7 +53,7 @@ class Agents(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AgentsWithRawResponse(self)
 
@@ -62,7 +62,7 @@ class Agents(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AgentsWithStreamingResponse(self)
 
@@ -122,7 +122,8 @@ class Agents(SyncAPIResource):
           tools: Tool configurations available to the agent. Maximum of 256 tools across all
               toolsets allowed.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -152,7 +153,7 @@ class Agents(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._post(
-            "/v1/agents?beta=true",
+            "/v1/agents",
             body={
                 "model": model,
                 "name": name,
@@ -170,6 +171,7 @@ class Agents(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.create",
                 span_route="/v1/agents",
                 span_created_id="gen_ai.agent.id",
@@ -200,7 +202,8 @@ class Agents(SyncAPIResource):
           version: Agent version. Omit for the most recent version. Must be at least 1 if
               specified.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -232,13 +235,14 @@ class Agents(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._get(
-            path_template("/v1/agents/{agent_id}?beta=true", agent_id=agent_id),
+            path_template("/v1/agents/{agent_id}", agent_id=agent_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
                 query={"version": version},
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.retrieve",
                 span_route="/v1/agents/{agent_id}",
                 span_attributes={"gen_ai.agent.id": agent_id},
@@ -314,7 +318,8 @@ class Agents(SyncAPIResource):
               supplied, the request fails if it does not match the server's current version;
               omit to apply the update unconditionally.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -346,7 +351,7 @@ class Agents(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._post(
-            path_template("/v1/agents/{agent_id}?beta=true", agent_id=agent_id),
+            path_template("/v1/agents/{agent_id}", agent_id=agent_id),
             body={
                 "description": description,
                 "execution_identity": execution_identity,
@@ -365,6 +370,7 @@ class Agents(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.update",
                 span_route="/v1/agents/{agent_id}",
                 span_attributes={"gen_ai.agent.id": agent_id},
@@ -403,7 +409,8 @@ class Agents(SyncAPIResource):
 
           page: Opaque pagination cursor from a previous response.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -433,7 +440,7 @@ class Agents(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._get_api_list(
-            "/v1/agents?beta=true",
+            "/v1/agents",
             page=SyncPageCursor[BetaManagedAgentsAgent],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -447,6 +454,7 @@ class Agents(SyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.list",
                 span_route="/v1/agents",
             ),
@@ -472,7 +480,8 @@ class Agents(SyncAPIResource):
         Args:
           agent_id: Unique identifier of the agent to archive.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -504,12 +513,13 @@ class Agents(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._post(
-            path_template("/v1/agents/{agent_id}/archive?beta=true", agent_id=agent_id),
+            path_template("/v1/agents/{agent_id}/archive", agent_id=agent_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.archive",
                 span_route="/v1/agents/{agent_id}/archive",
                 span_attributes={"gen_ai.agent.id": agent_id},
@@ -529,7 +539,7 @@ class AsyncAgents(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncAgentsWithRawResponse(self)
 
@@ -538,7 +548,7 @@ class AsyncAgents(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncAgentsWithStreamingResponse(self)
 
@@ -598,7 +608,8 @@ class AsyncAgents(AsyncAPIResource):
           tools: Tool configurations available to the agent. Maximum of 256 tools across all
               toolsets allowed.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -628,7 +639,7 @@ class AsyncAgents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return await self._post(
-            "/v1/agents?beta=true",
+            "/v1/agents",
             body={
                 "model": model,
                 "name": name,
@@ -646,6 +657,7 @@ class AsyncAgents(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.create",
                 span_route="/v1/agents",
                 span_created_id="gen_ai.agent.id",
@@ -676,7 +688,8 @@ class AsyncAgents(AsyncAPIResource):
           version: Agent version. Omit for the most recent version. Must be at least 1 if
               specified.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -708,13 +721,14 @@ class AsyncAgents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return await self._get(
-            path_template("/v1/agents/{agent_id}?beta=true", agent_id=agent_id),
+            path_template("/v1/agents/{agent_id}", agent_id=agent_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
                 query={"version": version},
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.retrieve",
                 span_route="/v1/agents/{agent_id}",
                 span_attributes={"gen_ai.agent.id": agent_id},
@@ -790,7 +804,8 @@ class AsyncAgents(AsyncAPIResource):
               supplied, the request fails if it does not match the server's current version;
               omit to apply the update unconditionally.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -822,7 +837,7 @@ class AsyncAgents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return await self._post(
-            path_template("/v1/agents/{agent_id}?beta=true", agent_id=agent_id),
+            path_template("/v1/agents/{agent_id}", agent_id=agent_id),
             body={
                 "description": description,
                 "execution_identity": execution_identity,
@@ -841,6 +856,7 @@ class AsyncAgents(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.update",
                 span_route="/v1/agents/{agent_id}",
                 span_attributes={"gen_ai.agent.id": agent_id},
@@ -879,7 +895,8 @@ class AsyncAgents(AsyncAPIResource):
 
           page: Opaque pagination cursor from a previous response.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -909,7 +926,7 @@ class AsyncAgents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._get_api_list(
-            "/v1/agents?beta=true",
+            "/v1/agents",
             page=AsyncPageCursor[BetaManagedAgentsAgent],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -923,6 +940,7 @@ class AsyncAgents(AsyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.list",
                 span_route="/v1/agents",
             ),
@@ -948,7 +966,8 @@ class AsyncAgents(AsyncAPIResource):
         Args:
           agent_id: Unique identifier of the agent to archive.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -980,12 +999,13 @@ class AsyncAgents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return await self._post(
-            path_template("/v1/agents/{agent_id}/archive?beta=true", agent_id=agent_id),
+            path_template("/v1/agents/{agent_id}/archive", agent_id=agent_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.agents.archive",
                 span_route="/v1/agents/{agent_id}/archive",
                 span_attributes={"gen_ai.agent.id": agent_id},

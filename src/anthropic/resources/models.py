@@ -6,7 +6,7 @@ from typing_extensions import Literal
 import httpx2
 
 from .._types import Body, Omit, Query, Headers, NotGiven, omit, not_given
-from .._utils import is_given, path_template, strip_not_given
+from .._utils import path_template, strip_not_given
 from .._compat import cached_property
 from .._resource import SyncAPIResource, AsyncAPIResource
 from .._response import (
@@ -18,7 +18,6 @@ from .._response import (
 from ..pagination import SyncPage, AsyncPage
 from .._base_client import AsyncPaginator, make_request_options
 from ..types.model_info import ModelInfo
-from ..types.anthropic_beta_param import AnthropicBetaParam
 
 __all__ = ["Models", "AsyncModels"]
 
@@ -30,7 +29,7 @@ class Models(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return ModelsWithRawResponse(self)
 
@@ -39,7 +38,7 @@ class Models(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return ModelsWithStreamingResponse(self)
 
@@ -47,7 +46,6 @@ class Models(SyncAPIResource):
         self,
         model_id: str,
         *,
-        betas: List[AnthropicBetaParam] | Omit = omit,
         workspace_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -65,8 +63,6 @@ class Models(SyncAPIResource):
         Args:
           model_id: Model identifier or alias.
 
-          betas: Optional header to specify the beta version(s) you want to use.
-
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
 
@@ -81,18 +77,18 @@ class Models(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not model_id:
             raise ValueError(f"Expected a non-empty value for `model_id` but received {model_id!r}")
-        extra_headers = {
-            **strip_not_given(
-                {
-                    "anthropic-beta": ",".join(str(e) for e in betas) if is_given(betas) else not_given,
-                    "anthropic-workspace-id": workspace_id,
-                }
-            ),
-            **(extra_headers or {}),
-        }
+        extra_headers = {**strip_not_given({"anthropic-workspace-id": workspace_id}), **(extra_headers or {})}
         return self._get(
             path_template("/v1/models/{model_id}", model_id=model_id),
             options=make_request_options(
@@ -114,7 +110,6 @@ class Models(SyncAPIResource):
         before_id: str | Omit = omit,
         lifecycle: List[Literal["active", "deprecated", "retired"]] | Omit = omit,
         limit: int | Omit = omit,
-        betas: List[AnthropicBetaParam] | Omit = omit,
         workspace_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -145,8 +140,6 @@ class Models(SyncAPIResource):
 
               Defaults to `20`. Ranges from `1` to `1000`.
 
-          betas: Optional header to specify the beta version(s) you want to use.
-
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
 
@@ -161,16 +154,16 @@ class Models(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
-        extra_headers = {
-            **strip_not_given(
-                {
-                    "anthropic-beta": ",".join(str(e) for e in betas) if is_given(betas) else not_given,
-                    "anthropic-workspace-id": workspace_id,
-                }
-            ),
-            **(extra_headers or {}),
-        }
+        extra_headers = {**strip_not_given({"anthropic-workspace-id": workspace_id}), **(extra_headers or {})}
         return self._get_api_list(
             "/v1/models",
             page=SyncPage[ModelInfo],
@@ -199,7 +192,7 @@ class AsyncModels(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncModelsWithRawResponse(self)
 
@@ -208,7 +201,7 @@ class AsyncModels(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncModelsWithStreamingResponse(self)
 
@@ -216,7 +209,6 @@ class AsyncModels(AsyncAPIResource):
         self,
         model_id: str,
         *,
-        betas: List[AnthropicBetaParam] | Omit = omit,
         workspace_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -234,8 +226,6 @@ class AsyncModels(AsyncAPIResource):
         Args:
           model_id: Model identifier or alias.
 
-          betas: Optional header to specify the beta version(s) you want to use.
-
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
 
@@ -250,18 +240,18 @@ class AsyncModels(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not model_id:
             raise ValueError(f"Expected a non-empty value for `model_id` but received {model_id!r}")
-        extra_headers = {
-            **strip_not_given(
-                {
-                    "anthropic-beta": ",".join(str(e) for e in betas) if is_given(betas) else not_given,
-                    "anthropic-workspace-id": workspace_id,
-                }
-            ),
-            **(extra_headers or {}),
-        }
+        extra_headers = {**strip_not_given({"anthropic-workspace-id": workspace_id}), **(extra_headers or {})}
         return await self._get(
             path_template("/v1/models/{model_id}", model_id=model_id),
             options=make_request_options(
@@ -283,7 +273,6 @@ class AsyncModels(AsyncAPIResource):
         before_id: str | Omit = omit,
         lifecycle: List[Literal["active", "deprecated", "retired"]] | Omit = omit,
         limit: int | Omit = omit,
-        betas: List[AnthropicBetaParam] | Omit = omit,
         workspace_id: str | Omit = omit,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
@@ -314,8 +303,6 @@ class AsyncModels(AsyncAPIResource):
 
               Defaults to `20`. Ranges from `1` to `1000`.
 
-          betas: Optional header to specify the beta version(s) you want to use.
-
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
 
@@ -330,16 +317,16 @@ class AsyncModels(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
-        extra_headers = {
-            **strip_not_given(
-                {
-                    "anthropic-beta": ",".join(str(e) for e in betas) if is_given(betas) else not_given,
-                    "anthropic-workspace-id": workspace_id,
-                }
-            ),
-            **(extra_headers or {}),
-        }
+        extra_headers = {**strip_not_given({"anthropic-workspace-id": workspace_id}), **(extra_headers or {})}
         return self._get_api_list(
             "/v1/models",
             page=AsyncPage[ModelInfo],

@@ -29,7 +29,7 @@ class Users(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return UsersWithRawResponse(self)
 
@@ -38,7 +38,7 @@ class Users(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return UsersWithStreamingResponse(self)
 
@@ -70,12 +70,13 @@ class Users(SyncAPIResource):
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return self._get(
-            path_template("/v1/organizations/users/{user_id}?beta=true", user_id=user_id),
+            path_template("/v1/organizations/users/{user_id}", user_id=user_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.retrieve",
                 span_route="/v1/organizations/users/{user_id}",
                 span_attributes={"anthropic.organization.user.id": user_id},
@@ -120,13 +121,14 @@ class Users(SyncAPIResource):
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return self._post(
-            path_template("/v1/organizations/users/{user_id}?beta=true", user_id=user_id),
+            path_template("/v1/organizations/users/{user_id}", user_id=user_id),
             body={"role": role},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.update",
                 span_route="/v1/organizations/users/{user_id}",
                 span_attributes={"anthropic.organization.user.id": user_id},
@@ -182,7 +184,7 @@ class Users(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get_api_list(
-            "/v1/organizations/users?beta=true",
+            "/v1/organizations/users",
             page=SyncPage[BetaOrganizationUser],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -196,6 +198,7 @@ class Users(SyncAPIResource):
                     "limit": limit,
                     "roles": roles,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.list",
                 span_route="/v1/organizations/users",
             ),
@@ -226,16 +229,24 @@ class Users(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          CannotRemoveLastMemberError: The user is the organization's only member. Add another member before removing
+              this one.
+
+          ConcurrentMembershipChangeError: Another change to the organization's members is in progress. Retry the request
+              once it completes.
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return self._delete(
-            path_template("/v1/organizations/users/{user_id}?beta=true", user_id=user_id),
+            path_template("/v1/organizations/users/{user_id}", user_id=user_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.remove",
                 span_route="/v1/organizations/users/{user_id}",
                 span_attributes={"anthropic.organization.user.id": user_id},
@@ -251,7 +262,7 @@ class AsyncUsers(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncUsersWithRawResponse(self)
 
@@ -260,7 +271,7 @@ class AsyncUsers(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncUsersWithStreamingResponse(self)
 
@@ -292,12 +303,13 @@ class AsyncUsers(AsyncAPIResource):
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return await self._get(
-            path_template("/v1/organizations/users/{user_id}?beta=true", user_id=user_id),
+            path_template("/v1/organizations/users/{user_id}", user_id=user_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.retrieve",
                 span_route="/v1/organizations/users/{user_id}",
                 span_attributes={"anthropic.organization.user.id": user_id},
@@ -342,13 +354,14 @@ class AsyncUsers(AsyncAPIResource):
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return await self._post(
-            path_template("/v1/organizations/users/{user_id}?beta=true", user_id=user_id),
+            path_template("/v1/organizations/users/{user_id}", user_id=user_id),
             body={"role": role},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.update",
                 span_route="/v1/organizations/users/{user_id}",
                 span_attributes={"anthropic.organization.user.id": user_id},
@@ -404,7 +417,7 @@ class AsyncUsers(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get_api_list(
-            "/v1/organizations/users?beta=true",
+            "/v1/organizations/users",
             page=AsyncPage[BetaOrganizationUser],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -418,6 +431,7 @@ class AsyncUsers(AsyncAPIResource):
                     "limit": limit,
                     "roles": roles,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.list",
                 span_route="/v1/organizations/users",
             ),
@@ -448,16 +462,24 @@ class AsyncUsers(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          CannotRemoveLastMemberError: The user is the organization's only member. Add another member before removing
+              this one.
+
+          ConcurrentMembershipChangeError: Another change to the organization's members is in progress. Retry the request
+              once it completes.
         """
         if not user_id:
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return await self._delete(
-            path_template("/v1/organizations/users/{user_id}?beta=true", user_id=user_id),
+            path_template("/v1/organizations/users/{user_id}", user_id=user_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.users.remove",
                 span_route="/v1/organizations/users/{user_id}",
                 span_attributes={"anthropic.organization.user.id": user_id},

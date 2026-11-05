@@ -17,7 +17,7 @@ from ....._response import (
 from .....pagination import SyncPageCursor, AsyncPageCursor
 from ....._base_client import AsyncPaginator, make_request_options
 from .....types.beta.organization.rbac_groups.beta_rbac_group_member import BetaRBACGroupMember
-from .....types.beta.organization.rbac_groups.member_remove_response import MemberRemoveResponse
+from .....types.beta.organization.rbac_groups.beta_deleted_rbac_group_member import BetaDeletedRBACGroupMember
 
 __all__ = ["Members", "AsyncMembers"]
 
@@ -29,7 +29,7 @@ class Members(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return MembersWithRawResponse(self)
 
@@ -38,7 +38,7 @@ class Members(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return MembersWithStreamingResponse(self)
 
@@ -80,9 +80,7 @@ class Members(SyncAPIResource):
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return self._get_api_list(
-            path_template(
-                "/v1/organizations/rbac_groups/{rbac_group_id}/members?beta=true", rbac_group_id=rbac_group_id
-            ),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}/members", rbac_group_id=rbac_group_id),
             page=SyncPageCursor[BetaRBACGroupMember],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -93,6 +91,7 @@ class Members(SyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.members.list",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}/members",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -132,19 +131,28 @@ class Members(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          RBACGroupGrantsOwnerAccessError: A role attached to an RBAC Group in the request grants owner access, so this API
+              does not add members to that group (directly or through an invite), remove its
+              members, or delete it. Make the change in the organization's admin settings in
+              Claude.
+
+          RBACGroupOwnerAccessUnconfirmedError: The API could not finish checking whether an RBAC Group in the request grants
+              owner access, so it made no change. Retrying the same request will not help.
+              Make the change in the organization's admin settings in Claude.
         """
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return self._post(
-            path_template(
-                "/v1/organizations/rbac_groups/{rbac_group_id}/members?beta=true", rbac_group_id=rbac_group_id
-            ),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}/members", rbac_group_id=rbac_group_id),
             body={"user_id": user_id},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.members.add",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}/members",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -164,7 +172,7 @@ class Members(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx2.Timeout | None | NotGiven = not_given,
-    ) -> MemberRemoveResponse:
+    ) -> BetaDeletedRBACGroupMember:
         """Remove a User from an RBAC Group.
 
         Membership of groups provisioned by an
@@ -185,6 +193,16 @@ class Members(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          RBACGroupGrantsOwnerAccessError: A role attached to an RBAC Group in the request grants owner access, so this API
+              does not add members to that group (directly or through an invite), remove its
+              members, or delete it. Make the change in the organization's admin settings in
+              Claude.
+
+          RBACGroupOwnerAccessUnconfirmedError: The API could not finish checking whether an RBAC Group in the request grants
+              owner access, so it made no change. Retrying the same request will not help.
+              Make the change in the organization's admin settings in Claude.
         """
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
@@ -192,7 +210,7 @@ class Members(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return self._delete(
             path_template(
-                "/v1/organizations/rbac_groups/{rbac_group_id}/members/{user_id}?beta=true",
+                "/v1/organizations/rbac_groups/{rbac_group_id}/members/{user_id}",
                 rbac_group_id=rbac_group_id,
                 user_id=user_id,
             ),
@@ -201,6 +219,7 @@ class Members(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.members.remove",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}/members/{user_id}",
                 span_attributes={
@@ -208,7 +227,7 @@ class Members(SyncAPIResource):
                     "anthropic.organization.rbac_group.member.id": user_id,
                 },
             ),
-            cast_to=MemberRemoveResponse,
+            cast_to=BetaDeletedRBACGroupMember,
         )
 
 
@@ -219,7 +238,7 @@ class AsyncMembers(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncMembersWithRawResponse(self)
 
@@ -228,7 +247,7 @@ class AsyncMembers(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncMembersWithStreamingResponse(self)
 
@@ -270,9 +289,7 @@ class AsyncMembers(AsyncAPIResource):
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return self._get_api_list(
-            path_template(
-                "/v1/organizations/rbac_groups/{rbac_group_id}/members?beta=true", rbac_group_id=rbac_group_id
-            ),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}/members", rbac_group_id=rbac_group_id),
             page=AsyncPageCursor[BetaRBACGroupMember],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -283,6 +300,7 @@ class AsyncMembers(AsyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.members.list",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}/members",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -322,19 +340,28 @@ class AsyncMembers(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          RBACGroupGrantsOwnerAccessError: A role attached to an RBAC Group in the request grants owner access, so this API
+              does not add members to that group (directly or through an invite), remove its
+              members, or delete it. Make the change in the organization's admin settings in
+              Claude.
+
+          RBACGroupOwnerAccessUnconfirmedError: The API could not finish checking whether an RBAC Group in the request grants
+              owner access, so it made no change. Retrying the same request will not help.
+              Make the change in the organization's admin settings in Claude.
         """
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return await self._post(
-            path_template(
-                "/v1/organizations/rbac_groups/{rbac_group_id}/members?beta=true", rbac_group_id=rbac_group_id
-            ),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}/members", rbac_group_id=rbac_group_id),
             body={"user_id": user_id},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.members.add",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}/members",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -354,7 +381,7 @@ class AsyncMembers(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx2.Timeout | None | NotGiven = not_given,
-    ) -> MemberRemoveResponse:
+    ) -> BetaDeletedRBACGroupMember:
         """Remove a User from an RBAC Group.
 
         Membership of groups provisioned by an
@@ -375,6 +402,16 @@ class AsyncMembers(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          RBACGroupGrantsOwnerAccessError: A role attached to an RBAC Group in the request grants owner access, so this API
+              does not add members to that group (directly or through an invite), remove its
+              members, or delete it. Make the change in the organization's admin settings in
+              Claude.
+
+          RBACGroupOwnerAccessUnconfirmedError: The API could not finish checking whether an RBAC Group in the request grants
+              owner access, so it made no change. Retrying the same request will not help.
+              Make the change in the organization's admin settings in Claude.
         """
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
@@ -382,7 +419,7 @@ class AsyncMembers(AsyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
         return await self._delete(
             path_template(
-                "/v1/organizations/rbac_groups/{rbac_group_id}/members/{user_id}?beta=true",
+                "/v1/organizations/rbac_groups/{rbac_group_id}/members/{user_id}",
                 rbac_group_id=rbac_group_id,
                 user_id=user_id,
             ),
@@ -391,6 +428,7 @@ class AsyncMembers(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.members.remove",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}/members/{user_id}",
                 span_attributes={
@@ -398,7 +436,7 @@ class AsyncMembers(AsyncAPIResource):
                     "anthropic.organization.rbac_group.member.id": user_id,
                 },
             ),
-            cast_to=MemberRemoveResponse,
+            cast_to=BetaDeletedRBACGroupMember,
         )
 
 

@@ -25,7 +25,7 @@ from ....._response import (
 from .....pagination import SyncPageCursor, AsyncPageCursor
 from ....._base_client import AsyncPaginator, make_request_options
 from .....types.beta.organization.beta_rbac_group import BetaRBACGroup
-from .....types.beta.organization.rbac_group_delete_response import RBACGroupDeleteResponse
+from .....types.beta.organization.beta_deleted_rbac_group import BetaDeletedRBACGroup
 
 __all__ = ["RBACGroups", "AsyncRBACGroups"]
 
@@ -41,7 +41,7 @@ class RBACGroups(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return RBACGroupsWithRawResponse(self)
 
@@ -50,7 +50,7 @@ class RBACGroups(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return RBACGroupsWithStreamingResponse(self)
 
@@ -84,13 +84,14 @@ class RBACGroups(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._post(
-            "/v1/organizations/rbac_groups?beta=true",
+            "/v1/organizations/rbac_groups",
             body={"name": name},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.create",
                 span_route="/v1/organizations/rbac_groups",
                 span_created_id="anthropic.organization.rbac_group.id",
@@ -128,12 +129,13 @@ class RBACGroups(SyncAPIResource):
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return self._get(
-            path_template("/v1/organizations/rbac_groups/{rbac_group_id}?beta=true", rbac_group_id=rbac_group_id),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}", rbac_group_id=rbac_group_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.retrieve",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -177,13 +179,14 @@ class RBACGroups(SyncAPIResource):
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return self._post(
-            path_template("/v1/organizations/rbac_groups/{rbac_group_id}?beta=true", rbac_group_id=rbac_group_id),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}", rbac_group_id=rbac_group_id),
             body={"name": name},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.update",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -224,7 +227,7 @@ class RBACGroups(SyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get_api_list(
-            "/v1/organizations/rbac_groups?beta=true",
+            "/v1/organizations/rbac_groups",
             page=SyncPageCursor[BetaRBACGroup],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -235,6 +238,7 @@ class RBACGroups(SyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.list",
                 span_route="/v1/organizations/rbac_groups",
             ),
@@ -251,7 +255,7 @@ class RBACGroups(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx2.Timeout | None | NotGiven = not_given,
-    ) -> RBACGroupDeleteResponse:
+    ) -> BetaDeletedRBACGroup:
         """Delete an RBAC Group.
 
         Groups provisioned by an identity provider (source type
@@ -270,21 +274,32 @@ class RBACGroups(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          RBACGroupGrantsOwnerAccessError: A role attached to an RBAC Group in the request grants owner access, so this API
+              does not add members to that group (directly or through an invite), remove its
+              members, or delete it. Make the change in the organization's admin settings in
+              Claude.
+
+          RBACGroupOwnerAccessUnconfirmedError: The API could not finish checking whether an RBAC Group in the request grants
+              owner access, so it made no change. Retrying the same request will not help.
+              Make the change in the organization's admin settings in Claude.
         """
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return self._delete(
-            path_template("/v1/organizations/rbac_groups/{rbac_group_id}?beta=true", rbac_group_id=rbac_group_id),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}", rbac_group_id=rbac_group_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.delete",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
             ),
-            cast_to=RBACGroupDeleteResponse,
+            cast_to=BetaDeletedRBACGroup,
         )
 
 
@@ -299,7 +314,7 @@ class AsyncRBACGroups(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncRBACGroupsWithRawResponse(self)
 
@@ -308,7 +323,7 @@ class AsyncRBACGroups(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncRBACGroupsWithStreamingResponse(self)
 
@@ -342,13 +357,14 @@ class AsyncRBACGroups(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return await self._post(
-            "/v1/organizations/rbac_groups?beta=true",
+            "/v1/organizations/rbac_groups",
             body={"name": name},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.create",
                 span_route="/v1/organizations/rbac_groups",
                 span_created_id="anthropic.organization.rbac_group.id",
@@ -386,12 +402,13 @@ class AsyncRBACGroups(AsyncAPIResource):
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return await self._get(
-            path_template("/v1/organizations/rbac_groups/{rbac_group_id}?beta=true", rbac_group_id=rbac_group_id),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}", rbac_group_id=rbac_group_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.retrieve",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -435,13 +452,14 @@ class AsyncRBACGroups(AsyncAPIResource):
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return await self._post(
-            path_template("/v1/organizations/rbac_groups/{rbac_group_id}?beta=true", rbac_group_id=rbac_group_id),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}", rbac_group_id=rbac_group_id),
             body={"name": name},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.update",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
@@ -482,7 +500,7 @@ class AsyncRBACGroups(AsyncAPIResource):
           timeout: Override the client-level default timeout for this request, in seconds
         """
         return self._get_api_list(
-            "/v1/organizations/rbac_groups?beta=true",
+            "/v1/organizations/rbac_groups",
             page=AsyncPageCursor[BetaRBACGroup],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -493,6 +511,7 @@ class AsyncRBACGroups(AsyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.list",
                 span_route="/v1/organizations/rbac_groups",
             ),
@@ -509,7 +528,7 @@ class AsyncRBACGroups(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx2.Timeout | None | NotGiven = not_given,
-    ) -> RBACGroupDeleteResponse:
+    ) -> BetaDeletedRBACGroup:
         """Delete an RBAC Group.
 
         Groups provisioned by an identity provider (source type
@@ -528,21 +547,32 @@ class AsyncRBACGroups(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          RBACGroupGrantsOwnerAccessError: A role attached to an RBAC Group in the request grants owner access, so this API
+              does not add members to that group (directly or through an invite), remove its
+              members, or delete it. Make the change in the organization's admin settings in
+              Claude.
+
+          RBACGroupOwnerAccessUnconfirmedError: The API could not finish checking whether an RBAC Group in the request grants
+              owner access, so it made no change. Retrying the same request will not help.
+              Make the change in the organization's admin settings in Claude.
         """
         if not rbac_group_id:
             raise ValueError(f"Expected a non-empty value for `rbac_group_id` but received {rbac_group_id!r}")
         return await self._delete(
-            path_template("/v1/organizations/rbac_groups/{rbac_group_id}?beta=true", rbac_group_id=rbac_group_id),
+            path_template("/v1/organizations/rbac_groups/{rbac_group_id}", rbac_group_id=rbac_group_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.rbac_groups.delete",
                 span_route="/v1/organizations/rbac_groups/{rbac_group_id}",
                 span_attributes={"anthropic.organization.rbac_group.id": rbac_group_id},
             ),
-            cast_to=RBACGroupDeleteResponse,
+            cast_to=BetaDeletedRBACGroup,
         )
 
 

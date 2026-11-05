@@ -49,7 +49,7 @@ class Versions(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return VersionsWithRawResponse(self)
 
@@ -58,7 +58,7 @@ class Versions(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return VersionsWithStreamingResponse(self)
 
@@ -105,6 +105,23 @@ class Versions(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          CMEKContextUnavailableError: The workspace's encryption settings could not be read, so the request was
+              refused. Retry in a few minutes.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -124,7 +141,7 @@ class Versions(SyncAPIResource):
         # multipart/form-data; boundary=---abc--
         extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
         return self._post(
-            path_template("/v1/skills/{skill_id}/versions?beta=true", skill_id=skill_id),
+            path_template("/v1/skills/{skill_id}/versions", skill_id=skill_id),
             body=body,
             files=extracted_files,
             options=make_request_options(
@@ -132,6 +149,7 @@ class Versions(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.create",
                 span_route="/v1/skills/{skill_id}/versions",
                 span_attributes={"anthropic.skill.id": skill_id},
@@ -184,6 +202,14 @@ class Versions(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -199,12 +225,13 @@ class Versions(SyncAPIResource):
             **(extra_headers or {}),
         }
         return self._get(
-            path_template("/v1/skills/{skill_id}/versions/{version}?beta=true", skill_id=skill_id, version=version),
+            path_template("/v1/skills/{skill_id}/versions/{version}", skill_id=skill_id, version=version),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.retrieve",
                 span_route="/v1/skills/{skill_id}/versions/{version}",
                 span_attributes={"anthropic.skill.id": skill_id, "anthropic.skill.version.id": version},
@@ -257,6 +284,14 @@ class Versions(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -270,7 +305,7 @@ class Versions(SyncAPIResource):
             **(extra_headers or {}),
         }
         return self._get_api_list(
-            path_template("/v1/skills/{skill_id}/versions?beta=true", skill_id=skill_id),
+            path_template("/v1/skills/{skill_id}/versions", skill_id=skill_id),
             page=SyncPageCursor[BetaSkillVersion],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -281,6 +316,7 @@ class Versions(SyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.list",
                 span_route="/v1/skills/{skill_id}/versions",
                 span_attributes={"anthropic.skill.id": skill_id},
@@ -331,6 +367,14 @@ class Versions(SyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -346,12 +390,13 @@ class Versions(SyncAPIResource):
             **(extra_headers or {}),
         }
         return self._delete(
-            path_template("/v1/skills/{skill_id}/versions/{version}?beta=true", skill_id=skill_id, version=version),
+            path_template("/v1/skills/{skill_id}/versions/{version}", skill_id=skill_id, version=version),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.delete",
                 span_route="/v1/skills/{skill_id}/versions/{version}",
                 span_attributes={"anthropic.skill.id": skill_id, "anthropic.skill.version.id": version},
@@ -418,14 +463,13 @@ class Versions(SyncAPIResource):
             **(extra_headers or {}),
         }
         return self._get(
-            path_template(
-                "/v1/skills/{skill_id}/versions/{version}/content?beta=true", skill_id=skill_id, version=version
-            ),
+            path_template("/v1/skills/{skill_id}/versions/{version}/content", skill_id=skill_id, version=version),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.download",
                 span_route="/v1/skills/{skill_id}/versions/{version}/content",
                 span_attributes={"anthropic.skill.id": skill_id, "anthropic.skill.version.id": version},
@@ -441,7 +485,7 @@ class AsyncVersions(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncVersionsWithRawResponse(self)
 
@@ -450,7 +494,7 @@ class AsyncVersions(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncVersionsWithStreamingResponse(self)
 
@@ -497,6 +541,23 @@ class AsyncVersions(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          CMEKKeyDisabledError: The workspace's customer-managed encryption key is disabled or revoked.
+              Re-enable the key, then retry.
+
+          CMEKKeyNetworkBlockedError: The key management service's network access controls blocked the request to the
+              workspace's customer-managed encryption key. The key itself may be healthy.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
+
+          CMEKContextUnavailableError: The workspace's encryption settings could not be read, so the request was
+              refused. Retry in a few minutes.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -516,7 +577,7 @@ class AsyncVersions(AsyncAPIResource):
         # multipart/form-data; boundary=---abc--
         extra_headers = {"Content-Type": "multipart/form-data", **(extra_headers or {})}
         return await self._post(
-            path_template("/v1/skills/{skill_id}/versions?beta=true", skill_id=skill_id),
+            path_template("/v1/skills/{skill_id}/versions", skill_id=skill_id),
             body=body,
             files=extracted_files,
             options=make_request_options(
@@ -524,6 +585,7 @@ class AsyncVersions(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.create",
                 span_route="/v1/skills/{skill_id}/versions",
                 span_attributes={"anthropic.skill.id": skill_id},
@@ -576,6 +638,14 @@ class AsyncVersions(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -591,12 +661,13 @@ class AsyncVersions(AsyncAPIResource):
             **(extra_headers or {}),
         }
         return await self._get(
-            path_template("/v1/skills/{skill_id}/versions/{version}?beta=true", skill_id=skill_id, version=version),
+            path_template("/v1/skills/{skill_id}/versions/{version}", skill_id=skill_id, version=version),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.retrieve",
                 span_route="/v1/skills/{skill_id}/versions/{version}",
                 span_attributes={"anthropic.skill.id": skill_id, "anthropic.skill.version.id": version},
@@ -649,6 +720,14 @@ class AsyncVersions(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -662,7 +741,7 @@ class AsyncVersions(AsyncAPIResource):
             **(extra_headers or {}),
         }
         return self._get_api_list(
-            path_template("/v1/skills/{skill_id}/versions?beta=true", skill_id=skill_id),
+            path_template("/v1/skills/{skill_id}/versions", skill_id=skill_id),
             page=AsyncPageCursor[BetaSkillVersion],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -673,6 +752,7 @@ class AsyncVersions(AsyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.list",
                 span_route="/v1/skills/{skill_id}/versions",
                 span_attributes={"anthropic.skill.id": skill_id},
@@ -723,6 +803,14 @@ class AsyncVersions(AsyncAPIResource):
           extra_body: Add additional JSON properties to the request
 
           timeout: Override the client-level default timeout for this request, in seconds
+
+        Raises:
+          ClaudeCodeKeyCreatorNotMemberError: The API key belongs to the Claude Code workspace, and the user who created it is
+              no longer a member of the organization or of that workspace.
+
+          OrganizationOnHoldError: Anthropic has disabled the organization for trust and safety reasons. An
+              organization disabled for any other reason, such as billing, does not get this
+              code. `appeal_url`, when present, is where the organization can appeal.
         """
         if not skill_id:
             raise ValueError(f"Expected a non-empty value for `skill_id` but received {skill_id!r}")
@@ -738,12 +826,13 @@ class AsyncVersions(AsyncAPIResource):
             **(extra_headers or {}),
         }
         return await self._delete(
-            path_template("/v1/skills/{skill_id}/versions/{version}?beta=true", skill_id=skill_id, version=version),
+            path_template("/v1/skills/{skill_id}/versions/{version}", skill_id=skill_id, version=version),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.delete",
                 span_route="/v1/skills/{skill_id}/versions/{version}",
                 span_attributes={"anthropic.skill.id": skill_id, "anthropic.skill.version.id": version},
@@ -810,14 +899,13 @@ class AsyncVersions(AsyncAPIResource):
             **(extra_headers or {}),
         }
         return await self._get(
-            path_template(
-                "/v1/skills/{skill_id}/versions/{version}/content?beta=true", skill_id=skill_id, version=version
-            ),
+            path_template("/v1/skills/{skill_id}/versions/{version}/content", skill_id=skill_id, version=version),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.skills.versions.download",
                 span_route="/v1/skills/{skill_id}/versions/{version}/content",
                 span_attributes={"anthropic.skill.id": skill_id, "anthropic.skill.version.id": version},

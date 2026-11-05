@@ -47,6 +47,7 @@ from .beta_text_citation import BetaTextCitation as BetaTextCitation
 from .beta_user_location import BetaUserLocation as BetaUserLocation
 from .beta_webhook_event import BetaWebhookEvent as BetaWebhookEvent
 from .file_upload_params import FileUploadParams as FileUploadParams
+from .thread_send_params import ThreadSendParams as ThreadSendParams
 from .tunnel_list_params import TunnelListParams as TunnelListParams
 from .agent_create_params import AgentCreateParams as AgentCreateParams
 from .agent_update_params import AgentUpdateParams as AgentUpdateParams
@@ -76,6 +77,7 @@ from .beta_packages_params import BetaPackagesParams as BetaPackagesParams
 from .beta_signature_delta import BetaSignatureDelta as BetaSignatureDelta
 from .beta_tool_use_caller import BetaToolUseCaller as BetaToolUseCaller
 from .beta_web_fetch_block import BetaWebFetchBlock as BetaWebFetchBlock
+from .thread_create_params import ThreadCreateParams as ThreadCreateParams
 from .tunnel_create_params import TunnelCreateParams as TunnelCreateParams
 from .unwrap_webhook_event import UnwrapWebhookEvent as UnwrapWebhookEvent
 from .agent_retrieve_params import AgentRetrieveParams as AgentRetrieveParams
@@ -116,6 +118,7 @@ from .beta_self_hosted_config import BetaSelfHostedConfig as BetaSelfHostedConfi
 from .beta_server_tool_caller import BetaServerToolCaller as BetaServerToolCaller
 from .beta_tool_bash_20241022 import BetaToolBash20241022 as BetaToolBash20241022
 from .beta_tool_bash_20250124 import BetaToolBash20250124 as BetaToolBash20250124
+from .beta_user_message_param import BetaUserMessageParam as BetaUserMessageParam
 from .beta_webhook_event_data import BetaWebhookEventData as BetaWebhookEventData
 from .environment_list_params import EnvironmentListParams as EnvironmentListParams
 from .beta_browser_find_config import BetaBrowserFindConfig as BetaBrowserFindConfig
@@ -146,6 +149,7 @@ from .deployment_update_params import DeploymentUpdateParams as DeploymentUpdate
 from .memory_store_list_params import MemoryStoreListParams as MemoryStoreListParams
 from .user_profile_list_params import UserProfileListParams as UserProfileListParams
 from .beta_advisor_result_block import BetaAdvisorResultBlock as BetaAdvisorResultBlock
+from .beta_billing_frozen_error import BetaBillingFrozenError as BetaBillingFrozenError
 from .beta_browser_click_target import BetaBrowserClickTarget as BetaBrowserClickTarget
 from .beta_browser_hover_config import BetaBrowserHoverConfig as BetaBrowserHoverConfig
 from .beta_browser_member_input import BetaBrowserMemberInput as BetaBrowserMemberInput
@@ -157,6 +161,7 @@ from .beta_computer_member_name import (
 from .beta_computer_type_config import BetaComputerTypeConfig as BetaComputerTypeConfig
 from .beta_computer_wait_config import BetaComputerWaitConfig as BetaComputerWaitConfig
 from .beta_computer_zoom_config import BetaComputerZoomConfig as BetaComputerZoomConfig
+from .beta_deleted_user_profile import BetaDeletedUserProfile as BetaDeletedUserProfile
 from .beta_dream_sessions_input import BetaDreamSessionsInput as BetaDreamSessionsInput
 from .beta_fallback_block_param import BetaFallbackBlockParam as BetaFallbackBlockParam
 from .beta_input_transformation import BetaInputTransformation as BetaInputTransformation
@@ -165,10 +170,13 @@ from .beta_managed_agents_model import BetaManagedAgentsModel as BetaManagedAgen
 from .beta_managed_agents_vault import BetaManagedAgentsVault as BetaManagedAgentsVault
 from .beta_mcp_tool_param_param import BetaMCPToolParamParam as BetaMCPToolParamParam
 from .beta_memory_tool_20250818 import BetaMemoryTool20250818 as BetaMemoryTool20250818
+from .beta_message_thread_param import BetaMessageThreadParam as BetaMessageThreadParam
 from .beta_message_tokens_count import BetaMessageTokensCount as BetaMessageTokensCount
 from .beta_refusal_stop_details import BetaRefusalStopDetails as BetaRefusalStopDetails
+from .beta_system_message_param import BetaSystemMessageParam as BetaSystemMessageParam
 from .beta_thinking_block_param import BetaThinkingBlockParam as BetaThinkingBlockParam
 from .beta_thinking_turns_param import BetaThinkingTurnsParam as BetaThinkingTurnsParam
+from .beta_thread_create_params import BetaThreadCreateParams as BetaThreadCreateParams
 from .beta_tool_reference_block import BetaToolReferenceBlock as BetaToolReferenceBlock
 from .beta_tool_use_block_param import BetaToolUseBlockParam as BetaToolUseBlockParam
 from .beta_tool_uses_keep_param import BetaToolUsesKeepParam as BetaToolUsesKeepParam
@@ -185,6 +193,7 @@ from .beta_computer_scroll_input import BetaComputerScrollInput as BetaComputerS
 from .beta_fallback_credit_usage import BetaFallbackCreditUsage as BetaFallbackCreditUsage
 from .beta_mcp_tool_config_param import BetaMCPToolConfigParam as BetaMCPToolConfigParam
 from .beta_mcp_tool_result_block import BetaMCPToolResultBlock as BetaMCPToolResultBlock
+from .beta_message_content_param import BetaMessageContentParam as BetaMessageContentParam
 from .beta_output_behavior_param import BetaOutputBehaviorParam as BetaOutputBehaviorParam
 from .beta_output_tokens_details import BetaOutputTokensDetails as BetaOutputTokensDetails
 from .beta_server_tool_use_block import BetaServerToolUseBlock as BetaServerToolUseBlock
@@ -209,17 +218,20 @@ from .beta_citations_config_param import BetaCitationsConfigParam as BetaCitatio
 from .beta_compaction_block_param import BetaCompactionBlockParam as BetaCompactionBlockParam
 from .beta_computer_scroll_config import BetaComputerScrollConfig as BetaComputerScrollConfig
 from .beta_container_upload_block import BetaContainerUploadBlock as BetaContainerUploadBlock
+from .beta_invalid_metadata_error import BetaInvalidMetadataError as BetaInvalidMetadataError
 from .beta_limited_network_params import BetaLimitedNetworkParams as BetaLimitedNetworkParams
 from .beta_managed_agents_advisor import BetaManagedAgentsAdvisor as BetaManagedAgentsAdvisor
 from .beta_managed_agents_session import BetaManagedAgentsSession as BetaManagedAgentsSession
 from .beta_mcp_tool_listing_block import BetaMCPToolListingBlock as BetaMCPToolListingBlock
 from .beta_raw_message_stop_event import BetaRawMessageStopEvent as BetaRawMessageStopEvent
+from .beta_thread_continue_params import BetaThreadContinueParams as BetaThreadContinueParams
 from .beta_tool_choice_auto_param import BetaToolChoiceAutoParam as BetaToolChoiceAutoParam
 from .beta_tool_choice_none_param import BetaToolChoiceNoneParam as BetaToolChoiceNoneParam
 from .beta_tool_choice_tool_param import BetaToolChoiceToolParam as BetaToolChoiceToolParam
 from .beta_toolset_tool_use_block import BetaToolsetToolUseBlock as BetaToolsetToolUseBlock
 from .beta_url_image_source_param import BetaURLImageSourceParam as BetaURLImageSourceParam
 from .message_count_tokens_params import MessageCountTokensParams as MessageCountTokensParams
+from .beta_assistant_message_param import BetaAssistantMessageParam as BetaAssistantMessageParam
 from .beta_base64_pdf_source_param import BetaBase64PDFSourceParam as BetaBase64PDFSourceParam
 from .beta_browser_close_tab_input import BetaBrowserCloseTabInput as BetaBrowserCloseTabInput
 from .beta_browser_hold_key_config import BetaBrowserHoldKeyConfig as BetaBrowserHoldKeyConfig
@@ -341,6 +353,7 @@ from .beta_computer_wait_config_param import BetaComputerWaitConfigParam as Beta
 from .beta_computer_zoom_config_param import BetaComputerZoomConfigParam as BetaComputerZoomConfigParam
 from .beta_content_block_source_param import BetaContentBlockSourceParam as BetaContentBlockSourceParam
 from .beta_dream_sessions_input_param import BetaDreamSessionsInputParam as BetaDreamSessionsInputParam
+from .beta_environment_archived_error import BetaEnvironmentArchivedError as BetaEnvironmentArchivedError
 from .beta_file_document_source_param import BetaFileDocumentSourceParam as BetaFileDocumentSourceParam
 from .beta_input_tokens_trigger_param import BetaInputTokensTriggerParam as BetaInputTokensTriggerParam
 from .beta_managed_agents_auto_policy import BetaManagedAgentsAutoPolicy as BetaManagedAgentsAutoPolicy
@@ -382,6 +395,7 @@ from .beta_computer_right_click_config import BetaComputerRightClickConfig as Be
 from .beta_computer_triple_click_input import BetaComputerTripleClickInput as BetaComputerTripleClickInput
 from .beta_context_management_response import BetaContextManagementResponse as BetaContextManagementResponse
 from .beta_environment_delete_response import BetaEnvironmentDeleteResponse as BetaEnvironmentDeleteResponse
+from .beta_environment_not_found_error import BetaEnvironmentNotFoundError as BetaEnvironmentNotFoundError
 from .beta_fallback_credit_not_applied import BetaFallbackCreditNotApplied as BetaFallbackCreditNotApplied
 from .beta_fallback_credit_token_param import BetaFallbackCreditTokenParam as BetaFallbackCreditTokenParam
 from .beta_image_transformations_param import BetaImageTransformationsParam as BetaImageTransformationsParam
@@ -401,6 +415,7 @@ from .beta_user_profile_enrollment_url import BetaUserProfileEnrollmentURL as Be
 from .beta_web_fetch_tool_result_block import BetaWebFetchToolResultBlock as BetaWebFetchToolResultBlock
 from .beta_web_fetch_url_source_except import BetaWebFetchURLSourceExcept as BetaWebFetchURLSourceExcept
 from .beta_web_fetch_url_sources_param import BetaWebFetchURLSourcesParam as BetaWebFetchURLSourcesParam
+from .beta_billing_frozen_error_details import BetaBillingFrozenErrorDetails as BetaBillingFrozenErrorDetails
 from .beta_browser_get_page_text_config import BetaBrowserGetPageTextConfig as BetaBrowserGetPageTextConfig
 from .beta_browser_hover_tool_use_block import BetaBrowserHoverToolUseBlock as BetaBrowserHoverToolUseBlock
 from .beta_browser_left_mouse_up_config import BetaBrowserLeftMouseUpConfig as BetaBrowserLeftMouseUpConfig
@@ -480,6 +495,7 @@ from .beta_computer_left_mouse_down_input import BetaComputerLeftMouseDownInput 
 from .beta_computer_scroll_tool_use_block import BetaComputerScrollToolUseBlock as BetaComputerScrollToolUseBlock
 from .beta_computer_toolset_configs_param import BetaComputerToolsetConfigsParam as BetaComputerToolsetConfigsParam
 from .beta_dream_memory_store_input_param import BetaDreamMemoryStoreInputParam as BetaDreamMemoryStoreInputParam
+from .beta_invalid_metadata_error_details import BetaInvalidMetadataErrorDetails as BetaInvalidMetadataErrorDetails
 from .beta_managed_agents_agent_reference import BetaManagedAgentsAgentReference as BetaManagedAgentsAgentReference
 from .beta_managed_agents_anthropic_skill import BetaManagedAgentsAnthropicSkill as BetaManagedAgentsAnthropicSkill
 from .beta_managed_agents_branch_checkout import BetaManagedAgentsBranchCheckout as BetaManagedAgentsBranchCheckout
@@ -547,6 +563,7 @@ from .beta_computer_screenshot_config_param import (
 from .beta_fallback_message_iteration_usage import (
     BetaFallbackMessageIterationUsage as BetaFallbackMessageIterationUsage,
 )
+from .beta_invalid_config_type_change_error import BetaInvalidConfigTypeChangeError as BetaInvalidConfigTypeChangeError
 from .beta_managed_agents_agent_tool_config import BetaManagedAgentsAgentToolConfig as BetaManagedAgentsAgentToolConfig
 from .beta_managed_agents_always_ask_policy import BetaManagedAgentsAlwaysAskPolicy as BetaManagedAgentsAlwaysAskPolicy
 from .beta_managed_agents_auto_policy_param import BetaManagedAgentsAutoPolicyParam as BetaManagedAgentsAutoPolicyParam
@@ -604,6 +621,12 @@ from .beta_code_execution_result_block_param import (
 )
 from .beta_computer_right_click_config_param import (
     BetaComputerRightClickConfigParam as BetaComputerRightClickConfigParam,
+)
+from .beta_environment_create_disabled_error import (
+    BetaEnvironmentCreateDisabledError as BetaEnvironmentCreateDisabledError,
+)
+from .beta_environment_update_disabled_error import (
+    BetaEnvironmentUpdateDisabledError as BetaEnvironmentUpdateDisabledError,
 )
 from .beta_input_tokens_clear_at_least_param import BetaInputTokensClearAtLeastParam as BetaInputTokensClearAtLeastParam
 from .beta_managed_agents_budget_limit_param import (
@@ -703,6 +726,9 @@ from .beta_computer_triple_click_config_param import (
 from .beta_content_block_source_content_param import (
     BetaContentBlockSourceContentParam as BetaContentBlockSourceContentParam,
 )
+from .beta_environment_archived_error_details import (
+    BetaEnvironmentArchivedErrorDetails as BetaEnvironmentArchivedErrorDetails,
+)
 from .beta_managed_agents_always_allow_policy import (
     BetaManagedAgentsAlwaysAllowPolicy as BetaManagedAgentsAlwaysAllowPolicy,
 )
@@ -774,6 +800,9 @@ from .beta_computer_left_mouse_up_config_param import (
 )
 from .beta_computer_right_click_tool_use_block import (
     BetaComputerRightClickToolUseBlock as BetaComputerRightClickToolUseBlock,
+)
+from .beta_environment_not_found_error_details import (
+    BetaEnvironmentNotFoundErrorDetails as BetaEnvironmentNotFoundErrorDetails,
 )
 from .beta_managed_agents_cache_creation_usage import (
     BetaManagedAgentsCacheCreationUsage as BetaManagedAgentsCacheCreationUsage,
@@ -1159,6 +1188,9 @@ from .beta_code_execution_tool_result_block_content import (
 from .beta_count_tokens_context_management_response import (
     BetaCountTokensContextManagementResponse as BetaCountTokensContextManagementResponse,
 )
+from .beta_invalid_config_type_change_error_details import (
+    BetaInvalidConfigTypeChangeErrorDetails as BetaInvalidConfigTypeChangeErrorDetails,
+)
 from .beta_managed_agents_always_allow_policy_param import (
     BetaManagedAgentsAlwaysAllowPolicyParam as BetaManagedAgentsAlwaysAllowPolicyParam,
 )
@@ -1203,6 +1235,12 @@ from .beta_webhook_memory_store_archived_event_data import (
 )
 from .beta_citation_web_search_result_location_param import (
     BetaCitationWebSearchResultLocationParam as BetaCitationWebSearchResultLocationParam,
+)
+from .beta_environment_create_disabled_error_details import (
+    BetaEnvironmentCreateDisabledErrorDetails as BetaEnvironmentCreateDisabledErrorDetails,
+)
+from .beta_environment_update_disabled_error_details import (
+    BetaEnvironmentUpdateDisabledErrorDetails as BetaEnvironmentUpdateDisabledErrorDetails,
 )
 from .beta_managed_agents_mcp_toolset_default_config import (
     BetaManagedAgentsMCPToolsetDefaultConfig as BetaManagedAgentsMCPToolsetDefaultConfig,
@@ -1675,8 +1713,14 @@ from .beta_managed_agents_web_fetch_url_source_tool_reference_param import (
 from .beta_text_editor_code_execution_str_replace_result_block_param import (
     BetaTextEditorCodeExecutionStrReplaceResultBlockParam as BetaTextEditorCodeExecutionStrReplaceResultBlockParam,
 )
+from .beta_webhook_user_profile_enforcement_action_opened_event_data import (
+    BetaWebhookUserProfileEnforcementActionOpenedEventData as BetaWebhookUserProfileEnforcementActionOpenedEventData,
+)
 from .beta_managed_agents_self_hosted_resources_unsupported_run_error import (
     BetaManagedAgentsSelfHostedResourcesUnsupportedRunError as BetaManagedAgentsSelfHostedResourcesUnsupportedRunError,
+)
+from .beta_webhook_user_profile_enforcement_action_resolved_event_data import (
+    BetaWebhookUserProfileEnforcementActionResolvedEventData as BetaWebhookUserProfileEnforcementActionResolvedEventData,
 )
 from .beta_managed_agents_agent_archived_deployment_paused_reason_error import (
     BetaManagedAgentsAgentArchivedDeploymentPausedReasonError as BetaManagedAgentsAgentArchivedDeploymentPausedReasonError,

@@ -10,10 +10,12 @@ from ... import _exceptions
 from ._auth import load_auth, refresh_auth
 from ._beta import Beta, AsyncBeta
 from ..._types import NotGiven, OpenTelemetryClientOption, not_given
-from ..._utils import is_dict, asyncify, is_given
+from ..._utils import is_dict, asyncify, is_given, path_template
+from ..._client import _keep_client_header_params
 from ..._compat import model_copy, typed_cached_property
 from ..._models import FinalRequestOptions
 from ..._version import __version__
+from ..._constants import ANTHROPIC_API_VERSION
 from ..._streaming import Stream, AsyncStream
 from ..._exceptions import AnthropicError, APIStatusError
 from ..._middleware import MiddlewareInput
@@ -28,9 +30,6 @@ from ...resources.messages import Messages, AsyncMessages
 
 if TYPE_CHECKING:
     from google.auth.credentials import Credentials as GoogleCredentials  # type: ignore
-
-
-DEFAULT_VERSION = "vertex-2023-10-16"
 
 _HttpxClientT = TypeVar("_HttpxClientT", bound=Union[httpx2.Client, httpx2.AsyncClient])
 _DefaultStreamT = TypeVar("_DefaultStreamT", bound=Union[Stream[Any], AsyncStream[Any]])
@@ -433,10 +432,10 @@ class AsyncAnthropicVertex(BaseVertexClient[httpx2.AsyncClient, AsyncStream[Any]
 
 
 def _prepare_options(input_options: FinalRequestOptions, *, project_id: str | None, region: str) -> FinalRequestOptions:
-    options = model_copy(input_options, deep=True)
+    options = model_copy(_keep_client_header_params(input_options), deep=True)
 
     if is_dict(options.json_data):
-        options.json_data.setdefault("anthropic_version", DEFAULT_VERSION)
+        options.json_data.setdefault("anthropic_version", ANTHROPIC_API_VERSION)
 
     if options.url in {"/v1/messages", "/v1/messages?beta=true"} and options.method == "post":
         if project_id is None:
@@ -451,7 +450,8 @@ def _prepare_options(input_options: FinalRequestOptions, *, project_id: str | No
         stream = options.json_data.get("stream", False)
         specifier = "streamRawPredict" if stream else "rawPredict"
 
-        options.url = f"/projects/{project_id}/locations/{region}/publishers/anthropic/models/{model}:{specifier}"
+        path = "/projects/{project_id}/locations/{region}/publishers/anthropic/models/{model}:{specifier}"
+        options.url = path_template(path, project_id=project_id, region=region, model=model, specifier=specifier)
 
     if options.url in {"/v1/messages/count_tokens", "/v1/messages/count_tokens?beta=true"} and options.method == "post":
         if project_id is None:
@@ -459,7 +459,8 @@ def _prepare_options(input_options: FinalRequestOptions, *, project_id: str | No
                 "No project_id was given and it could not be resolved from credentials. The client should be instantiated with the `project_id` argument or the `ANTHROPIC_VERTEX_PROJECT_ID` environment variable should be set."
             )
 
-        options.url = f"/projects/{project_id}/locations/{region}/publishers/anthropic/models/count-tokens:rawPredict"
+        path = "/projects/{project_id}/locations/{region}/publishers/anthropic/models/count-tokens:rawPredict"
+        options.url = path_template(path, project_id=project_id, region=region)
 
     if options.url.startswith("/v1/messages/batches"):
         raise AnthropicError("The Batch API is not supported in the Vertex client yet")

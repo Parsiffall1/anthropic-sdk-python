@@ -35,7 +35,7 @@ class Workspaces(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return WorkspacesWithRawResponse(self)
 
@@ -44,7 +44,7 @@ class Workspaces(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return WorkspacesWithStreamingResponse(self)
 
@@ -80,7 +80,8 @@ class Workspaces(SyncAPIResource):
           page: Opaque cursor from a previous response's `next_page`. Leave it out to get the
               first page.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -105,8 +106,7 @@ class Workspaces(SyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._get_api_list(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces?beta=true",
-                destination_id=destination_id,
+                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces", destination_id=destination_id
             ),
             page=SyncPageCursor[BetaTelemetryDestinationWorkspace],
             options=make_request_options(
@@ -118,6 +118,7 @@ class Workspaces(SyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.workspaces.list",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/workspaces",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -159,7 +160,8 @@ class Workspaces(SyncAPIResource):
 
           workspace_id: ID of the workspace to add (`wrkspc_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -186,7 +188,7 @@ class Workspaces(SyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._post(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}?beta=true",
+                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 destination_id=destination_id,
                 workspace_id=workspace_id,
             ),
@@ -195,6 +197,7 @@ class Workspaces(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.workspaces.add",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 span_attributes={
@@ -236,7 +239,8 @@ class Workspaces(SyncAPIResource):
 
           workspace_id: ID of the workspace to remove (`wrkspc_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -263,7 +267,7 @@ class Workspaces(SyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._delete(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}?beta=true",
+                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 destination_id=destination_id,
                 workspace_id=workspace_id,
             ),
@@ -272,6 +276,7 @@ class Workspaces(SyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.workspaces.remove",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 span_attributes={
@@ -290,7 +295,7 @@ class AsyncWorkspaces(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncWorkspacesWithRawResponse(self)
 
@@ -299,7 +304,7 @@ class AsyncWorkspaces(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncWorkspacesWithStreamingResponse(self)
 
@@ -335,7 +340,8 @@ class AsyncWorkspaces(AsyncAPIResource):
           page: Opaque cursor from a previous response's `next_page`. Leave it out to get the
               first page.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -360,8 +366,7 @@ class AsyncWorkspaces(AsyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return self._get_api_list(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces?beta=true",
-                destination_id=destination_id,
+                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces", destination_id=destination_id
             ),
             page=AsyncPageCursor[BetaTelemetryDestinationWorkspace],
             options=make_request_options(
@@ -373,6 +378,7 @@ class AsyncWorkspaces(AsyncAPIResource):
                     "limit": limit,
                     "page": page,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.workspaces.list",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/workspaces",
                 span_attributes={"anthropic.organization.telemetry_destination.id": destination_id},
@@ -414,7 +420,8 @@ class AsyncWorkspaces(AsyncAPIResource):
 
           workspace_id: ID of the workspace to add (`wrkspc_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -441,7 +448,7 @@ class AsyncWorkspaces(AsyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._post(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}?beta=true",
+                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 destination_id=destination_id,
                 workspace_id=workspace_id,
             ),
@@ -450,6 +457,7 @@ class AsyncWorkspaces(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.workspaces.add",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 span_attributes={
@@ -491,7 +499,8 @@ class AsyncWorkspaces(AsyncAPIResource):
 
           workspace_id: ID of the workspace to remove (`wrkspc_...`).
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `telemetry-destinations-2026-08-11`
+              in this header.
 
           extra_headers: Send extra headers
 
@@ -518,7 +527,7 @@ class AsyncWorkspaces(AsyncAPIResource):
         extra_headers = {"anthropic-beta": "telemetry-destinations-2026-08-11", **(extra_headers or {})}
         return await self._delete(
             path_template(
-                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}?beta=true",
+                "/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 destination_id=destination_id,
                 workspace_id=workspace_id,
             ),
@@ -527,6 +536,7 @@ class AsyncWorkspaces(AsyncAPIResource):
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.organization.telemetry_destinations.workspaces.remove",
                 span_route="/v1/organizations/telemetry_destinations/{destination_id}/workspaces/{workspace_id}",
                 span_attributes={

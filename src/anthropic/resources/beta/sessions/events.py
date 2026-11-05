@@ -44,7 +44,7 @@ class Events(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return EventsWithRawResponse(self)
 
@@ -53,7 +53,7 @@ class Events(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return EventsWithStreamingResponse(self)
 
@@ -102,7 +102,8 @@ class Events(SyncAPIResource):
           types: Filter by event type. Values match the `type` field on returned events (for
               example, `user.message` or `agent.tool_use`). Omit to return all event types.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -134,7 +135,7 @@ class Events(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._get_api_list(
-            path_template("/v1/sessions/{session_id}/events?beta=true", session_id=session_id),
+            path_template("/v1/sessions/{session_id}/events", session_id=session_id),
             page=SyncPageCursor[BetaManagedAgentsSessionEvent],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -151,6 +152,7 @@ class Events(SyncAPIResource):
                     "page": page,
                     "types": types,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.sessions.events.list",
                 span_route="/v1/sessions/{session_id}/events",
                 span_attributes={"anthropic.session.id": session_id},
@@ -180,7 +182,8 @@ class Events(SyncAPIResource):
         Args:
           events: Events to send to the `session`.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -212,13 +215,14 @@ class Events(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._post(
-            path_template("/v1/sessions/{session_id}/events?beta=true", session_id=session_id),
+            path_template("/v1/sessions/{session_id}/events", session_id=session_id),
             body={"events": events},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.sessions.events.send",
                 span_route="/v1/sessions/{session_id}/events",
                 span_attributes={"anthropic.session.id": session_id},
@@ -255,7 +259,8 @@ class Events(SyncAPIResource):
               the `agent.thinking` event itself. Only previews of the requested event types
               are sent.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -287,13 +292,14 @@ class Events(SyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._get(
-            path_template("/v1/sessions/{session_id}/events/stream?beta=true", session_id=session_id),
+            path_template("/v1/sessions/{session_id}/events/stream", session_id=session_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
                 query={"event_deltas": event_deltas},
+                qualifiers={"beta": "true"},
                 span_name="anthropic.sessions.events.stream",
                 span_route="/v1/sessions/{session_id}/events/stream",
                 span_attributes={"anthropic.session.id": session_id},
@@ -313,7 +319,7 @@ class AsyncEvents(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#accessing-raw-response-data-eg-headers
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncEventsWithRawResponse(self)
 
@@ -322,7 +328,7 @@ class AsyncEvents(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/anthropics/anthropic-sdk-python#with_streaming_response
+        For more information, see https://platform.claude.com/docs/en/api/sdks/python
         """
         return AsyncEventsWithStreamingResponse(self)
 
@@ -371,7 +377,8 @@ class AsyncEvents(AsyncAPIResource):
           types: Filter by event type. Values match the `type` field on returned events (for
               example, `user.message` or `agent.tool_use`). Omit to return all event types.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -403,7 +410,7 @@ class AsyncEvents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return self._get_api_list(
-            path_template("/v1/sessions/{session_id}/events?beta=true", session_id=session_id),
+            path_template("/v1/sessions/{session_id}/events", session_id=session_id),
             page=AsyncPageCursor[BetaManagedAgentsSessionEvent],
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -420,6 +427,7 @@ class AsyncEvents(AsyncAPIResource):
                     "page": page,
                     "types": types,
                 },
+                qualifiers={"beta": "true"},
                 span_name="anthropic.sessions.events.list",
                 span_route="/v1/sessions/{session_id}/events",
                 span_attributes={"anthropic.session.id": session_id},
@@ -449,7 +457,8 @@ class AsyncEvents(AsyncAPIResource):
         Args:
           events: Events to send to the `session`.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -481,13 +490,14 @@ class AsyncEvents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return await self._post(
-            path_template("/v1/sessions/{session_id}/events?beta=true", session_id=session_id),
+            path_template("/v1/sessions/{session_id}/events", session_id=session_id),
             body={"events": events},
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
+                qualifiers={"beta": "true"},
                 span_name="anthropic.sessions.events.send",
                 span_route="/v1/sessions/{session_id}/events",
                 span_attributes={"anthropic.session.id": session_id},
@@ -524,7 +534,8 @@ class AsyncEvents(AsyncAPIResource):
               the `agent.thinking` event itself. Only previews of the requested event types
               are sent.
 
-          betas: Optional header to specify the beta version(s) you want to use.
+          betas: This endpoint is in beta: requests must send `managed-agents-2026-04-01` in this
+              header.
 
           workspace_id: Optional header to select the Workspace for this request. The value is a
               Workspace ID (for example, `wrkspc_011CZkZaBF1tNoB5wlCeusgy`).
@@ -556,13 +567,14 @@ class AsyncEvents(AsyncAPIResource):
         }
         extra_headers = {"anthropic-beta": "managed-agents-2026-04-01", **(extra_headers or {})}
         return await self._get(
-            path_template("/v1/sessions/{session_id}/events/stream?beta=true", session_id=session_id),
+            path_template("/v1/sessions/{session_id}/events/stream", session_id=session_id),
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
                 query={"event_deltas": event_deltas},
+                qualifiers={"beta": "true"},
                 span_name="anthropic.sessions.events.stream",
                 span_route="/v1/sessions/{session_id}/events/stream",
                 span_attributes={"anthropic.session.id": session_id},
